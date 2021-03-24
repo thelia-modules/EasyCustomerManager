@@ -1,5 +1,5 @@
 {
-  "name": "thelia-modules/easy-customer-manager-module",
+  "name": "thelia/easy-customer-manager-module",
   "description": "EasyCustomerManager module for Thelia",
   "license": "LGPL-3.0-or-later",
   "type": "thelia-module",
