@@ -9,8 +9,15 @@ use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Model\ConfigQuery;
 use TheliaSmarty\Template\Plugins\Form;
 
+/**
+ * class ConfigController
+ * @Route("/admin/module/EasyCustomerManager", name="easy_customer_manager") 
+ */
 class ConfigController extends BaseAdminController
 {
+    /**
+     * @Route("", name="set") 
+     */
     public function setAction()
     {
         $form = new Configuration($this->getRequest());

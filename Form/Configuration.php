@@ -13,12 +13,12 @@ class Configuration extends BaseForm
     {
         $form = $this->formBuilder;
 
-        $form->add('order','text',[
+        $form->add('order',TextType::class,[
             'data'=> EasyCustomerManager::getConfigValue('order_types')
         ]);
     }
 
-    public function getName(){
+    public static function getName(){
         return 'easy_customer_manager_configuration';
     }
 }
