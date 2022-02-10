@@ -8,6 +8,7 @@ use EasyCustomerManager\EasyCustomerManager;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Model\ConfigQuery;
 use TheliaSmarty\Template\Plugins\Form;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * class ConfigController
