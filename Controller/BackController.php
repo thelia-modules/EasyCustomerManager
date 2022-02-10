@@ -48,9 +48,17 @@ use Thelia\Model\ProductQuery;
 use Thelia\TaxEngine\Calculator;
 use Thelia\Tools\MoneyFormat;
 use Thelia\Tools\URL;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * class BackController
+ * @Route("/admin/easy-customer-manager/", name="back") 
+ */
 class BackController extends ProductController
 {
+    /**
+     * @Route("/list", name="list") 
+     */
     public function listAction(Request $request)
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::UPDATE)) {
