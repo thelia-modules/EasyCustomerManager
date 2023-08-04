@@ -127,7 +127,7 @@
     {* Delete confirmation dialog *}
 
     {capture "delete_customer_dialog"}
-    <input type="hidden" name="page" value="{$page}">
+    <input type="hidden" name="page" value="{$page|default:null}">
     <input type="hidden" name="customer_id" id="delete_customer_id">
 
     {hook name="customer.delete-form" location="customer_delete_form" }
@@ -175,7 +175,7 @@
 
         $( "#js-input-brand" ).select2();
 
-        var currencySymbol = '{$currencySymbol}';
+        var currencySymbol = '{$currencySymbol|default:null}';
 
         var tv = '{$theliaVersion}',
             mv = '{$moduleVersion}',

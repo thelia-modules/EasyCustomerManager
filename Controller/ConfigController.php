@@ -5,6 +5,7 @@ namespace EasyCustomerManager\Controller;
 
 use EasyCustomerManager\Form\Configuration;
 use EasyCustomerManager\EasyCustomerManager;
+use Symfony\Component\HttpFoundation\Request;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Model\ConfigQuery;
 use TheliaSmarty\Template\Plugins\Form;
@@ -21,12 +22,12 @@ class ConfigController extends BaseAdminController
      */
     public function setAction()
     {
-        $form = new Configuration($this->getRequest());
+        $form = $this->createForm(Configuration::getName());
         $response = null;
-
-        $configForm = $this->validateForm($form);
-        EasyCustomerManager::setConfigValue('order_types',$configForm->get('order')->getData(),true, true);
-
+        if ($form->getForm()->isSubmitted()){
+            $configForm = $this->validateForm($form);
+            EasyCustomerManager::setConfigValue('order_types',$configForm->get('order')->getData(),true, true);
+        }
         $response = $this->render(
             'module-configure',
             ['module_code' => 'EasyCustomerManager']
