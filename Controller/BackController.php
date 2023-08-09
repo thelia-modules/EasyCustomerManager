@@ -18,6 +18,7 @@ use EasyCustomerManager\Event\BeforeFilterEvent;
 use EasyCustomerManager\Event\TemplateFieldEvent;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\Join;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Thelia\Controller\Admin\ProductController;
 use Thelia\Core\Event\Image\ImageEvent;
@@ -52,14 +53,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * class BackController
- * @Route("/admin/easy-customer-manager/", name="back") 
+ * @Route("/admin/easy-customer-manager", name="back")
  */
 class BackController extends ProductController
 {
     /**
-     * @Route("/list", name="list") 
+     * @Route("/list", name="list")
      */
-    public function listAction(Request $request)
+    public function listAction(Request $request,EventDispatcherInterface $eventDispatcher)
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::UPDATE)) {
             return $response;
@@ -67,7 +68,7 @@ class BackController extends ProductController
 
         if ($request->isXmlHttpRequest()) {
 
-            $locale = $this->getRequest()->getSession()->getLang()->getLocale();
+            $locale = $request->getSession()->getLang()->getLocale();
 
             $query = CustomerQuery::create();
             $query->useOrderQuery('order', Criteria::LEFT_JOIN)
@@ -79,7 +80,7 @@ class BackController extends ProductController
             $queryCount = clone $query;
 
             $beforeFilterEvent = new BeforeFilterEvent($request, $query);
-            $this->getDispatcher()->dispatch(BeforeFilterEvent::CUSTOMER_MANAGER_BEFORE_FILTER, $beforeFilterEvent);
+            $eventDispatcher->dispatch($beforeFilterEvent,BeforeFilterEvent::CUSTOMER_MANAGER_BEFORE_FILTER, );
 
             $this->filterByCountry($request, $query);
             $this->filterByCreatedAt($request, $query);
@@ -180,7 +181,7 @@ class BackController extends ProductController
         }
 
         $templateFieldEvent = new TemplateFieldEvent();
-        $this->getDispatcher()->dispatch(TemplateFieldEvent::CUSTOMER_MANAGER_TEMPLATE_FIELD, $templateFieldEvent);
+        $eventDispatcher->dispatch($templateFieldEvent,TemplateFieldEvent::CUSTOMER_MANAGER_TEMPLATE_FIELD);
 
         return $this->render('EasyCustomerManager/list', [
             'columnsDefinition' => $this->defineColumnsDefinition(),
