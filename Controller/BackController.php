@@ -60,7 +60,7 @@ class BackController extends ProductController
     /**
      * @Route("/list", name="list")
      */
-    public function listAction(Request $request,EventDispatcherInterface $eventDispatcher)
+    public function listAction(Request $request, EventDispatcherInterface $eventDispatcher)
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::UPDATE)) {
             return $response;
@@ -80,7 +80,7 @@ class BackController extends ProductController
             $queryCount = clone $query;
 
             $beforeFilterEvent = new BeforeFilterEvent($request, $query);
-            $eventDispatcher->dispatch($beforeFilterEvent,BeforeFilterEvent::CUSTOMER_MANAGER_BEFORE_FILTER, );
+            $eventDispatcher->dispatch($beforeFilterEvent, BeforeFilterEvent::CUSTOMER_MANAGER_BEFORE_FILTER);
 
             $this->filterByCountry($request, $query);
             $this->filterByCreatedAt($request, $query);
@@ -91,12 +91,13 @@ class BackController extends ProductController
 
             $query->offset($this->getOffset($request));
 
-            $customers = $query->limit(25)->find();
+            // Utilisation du paramètre length pour la pagination
+            $customers = $query->limit($this->getLength($request))->find();
 
             $json = [
-                "draw"=> $this->getDraw($request),
-                "recordsTotal"=> $queryCount->count(),
-                "recordsFiltered"=> $querySearchCount->count(),
+                "draw" => $this->getDraw($request),
+                "recordsTotal" => $queryCount->count(),
+                "recordsFiltered" => $querySearchCount->count(),
                 "data" => [],
                 "customers" => count($customers->getData()),
             ];
@@ -106,7 +107,7 @@ class BackController extends ProductController
             /** @var Customer $customer */
             foreach ($customers as $customer) {
 
-                $updateUrl = URL::getInstance()->absoluteUrl('admin/customer/update?customer_id='.$customer->getId());
+                $updateUrl = URL::getInstance()->absoluteUrl('admin/customer/update?customer_id=' . $customer->getId());
 
                 $customer->getOrders();
 
@@ -114,7 +115,6 @@ class BackController extends ProductController
                 $latest_order = $orderQuery->filterByCustomerId($customer->getId())
                     ->orderByCreatedAt(Criteria::DESC)
                     ->findOne();
-
 
                 $latest_order_created_at = null;
                 $latest_order_amount = null;
@@ -148,9 +148,10 @@ class BackController extends ProductController
                     );
                 }
 
-
-
                 $json['data'][] = [
+                    [
+                        'customer_ids' => $customer->getId(),
+                    ],
                     [
                         'name' => $customer->getRef(),
                         'href' => $updateUrl
@@ -181,7 +182,7 @@ class BackController extends ProductController
         }
 
         $templateFieldEvent = new TemplateFieldEvent();
-        $eventDispatcher->dispatch($templateFieldEvent,TemplateFieldEvent::CUSTOMER_MANAGER_TEMPLATE_FIELD);
+        $eventDispatcher->dispatch($templateFieldEvent, TemplateFieldEvent::CUSTOMER_MANAGER_TEMPLATE_FIELD);
 
         return $this->render('EasyCustomerManager/list', [
             'columnsDefinition' => $this->defineColumnsDefinition(),
@@ -191,6 +192,7 @@ class BackController extends ProductController
             'template_fields' => $templateFieldEvent->getTemplateFields()
         ]);
     }
+
 
     /**
      * @param Request $request
@@ -259,6 +261,13 @@ class BackController extends ProductController
         $i = -1;
 
         $definitions = [
+            [
+                'name' => 'checkbox',
+                'targets' => ++$i,
+                'title' =>  '<input type="checkbox" id="select-all" />',
+                'orderable' => false,
+                'searchable' => false,
+            ],
             [
                 'name' => 'ref',
                 'targets' => ++$i,
@@ -361,5 +370,51 @@ class BackController extends ProductController
     protected function getSearchValue(Request $request, $searchKey)
     {
         return (string) $request->get($searchKey)['value'];
+    }
+
+    /**
+     * @Route("/delete-selected", name="delete_selected", methods={"POST"})
+     * @throws \JsonException
+     */
+    public function deleteSelectedAction(Request $request)
+    {
+        if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::DELETE)) {
+            return $response;
+        }
+
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $customerIds = $data['customer_ids'];
+
+        $customers = CustomerQuery::create()
+            ->filterById($customerIds, Criteria::IN)
+            ->find();
+
+        $deletedCustomers = [];
+        $notDeletedCustomers = [];
+
+        foreach ($customers as $customer) {
+            $orders = OrderQuery::create()
+                ->filterByCustomerId($customer->getId())
+                ->find();
+
+            if ($orders->count() > 0) {
+                $notDeletedCustomers[] = $customer->getId();
+            } else {
+                $customer->delete();
+                $deletedCustomers[] = $customer->getId();
+            }
+        }
+
+        $responseMessage = [
+            'success' => 'Selected customers deleted successfully',
+            'deleted_customers' => $deletedCustomers,
+            'not_deleted_customers' => $notDeletedCustomers
+        ];
+
+        if (count($notDeletedCustomers) > 0) {
+            $responseMessage['message'] = 'Some customers were not deleted because they have orders.';
+        }
+
+        return new JsonResponse($responseMessage);
     }
 }
