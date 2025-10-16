@@ -2,14 +2,13 @@
 
 namespace EasyCustomerManager\Form;
 
-
 use EasyCustomerManager\EasyCustomerManager;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Form\BaseForm;
 
 class Configuration extends BaseForm
 {
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $form = $this->formBuilder;
 
@@ -18,7 +17,8 @@ class Configuration extends BaseForm
         ]);
     }
 
-    public static function getName(){
+    public static function getName(): string
+    {
         return 'easy_customer_manager_configuration';
     }
 }

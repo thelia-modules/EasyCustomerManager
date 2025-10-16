@@ -25,7 +25,7 @@ class EasyCustomerManager extends BaseModule
     const MODULE_NAME = 'EasyCustomerManager';
 
 
-    public function getHooks()
+    public function getHooks(): array
     {
         return [
             [

@@ -29,6 +29,7 @@ use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Thelia;
 use Thelia\Core\Translation\Translator;
+use Thelia\Model\ConfigQuery;
 use Thelia\Model\CountryQuery;
 use Thelia\Model\CurrencyQuery;
 use Thelia\Model\Customer;
@@ -186,7 +187,7 @@ class BackController extends ProductController
 
         return $this->render('EasyCustomerManager/list', [
             'columnsDefinition' => $this->defineColumnsDefinition(),
-            'theliaVersion' => Thelia::THELIA_VERSION,
+            'theliaVersion' => ConfigQuery::read('thelia_version'),
             'moduleVersion' => EasyCustomerManager::MODULE_VERSION,
             'moduleName' => EasyCustomerManager::MODULE_NAME,
             'template_fields' => $templateFieldEvent->getTemplateFields()
