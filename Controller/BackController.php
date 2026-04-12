@@ -50,17 +50,17 @@ use Thelia\Model\ProductQuery;
 use Thelia\TaxEngine\Calculator;
 use Thelia\Tools\MoneyFormat;
 use Thelia\Tools\URL;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * class BackController
- * @Route("/admin/easy-customer-manager", name="back")
  */
 class BackController extends ProductController
 {
     /**
      * @Route("/list", name="list")
      */
+    #[Route('/admin/easy-customer-manager', name: 'back')]
     public function listAction(Request $request, EventDispatcherInterface $eventDispatcher)
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::UPDATE)) {
@@ -374,9 +374,9 @@ class BackController extends ProductController
     }
 
     /**
-     * @Route("/delete-selected", name="delete_selected", methods={"POST"})
      * @throws \JsonException
      */
+    #[Route('/delete-selected', name: 'delete_selected', methods: ['POST'])]
     public function deleteSelectedAction(Request $request)
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::DELETE)) {

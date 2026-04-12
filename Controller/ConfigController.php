@@ -9,17 +9,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Model\ConfigQuery;
 use TheliaSmarty\Template\Plugins\Form;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * class ConfigController
- * @Route("/admin/module/EasyCustomerManager", name="easy_customer_manager") 
  */
 class ConfigController extends BaseAdminController
 {
     /**
      * @Route("", name="set") 
      */
+    #[Route('/admin/module/EasyCustomerManager', name: 'easy_customer_manager')]
     public function setAction()
     {
         $form = $this->createForm(Configuration::getName());
