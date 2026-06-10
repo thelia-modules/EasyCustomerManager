@@ -1,7 +1,8 @@
 {# Back hook fragment — main.in-top-menu-items #}
-<li class="{{ admin_current_location starts with 'back' ? 'active' : '' }}" id="module_menu_easy_customer_manager">
-    <a title="Modules" href="{{ path('back') }}">
-        <span class="icon-customers"></span>
+{% set is_active = admin_current_location is defined and admin_current_location starts with 'back' %}
+<li class="nav-item" id="module_menu_easy_customer_manager">
+    <a class="nav-link {{ is_active ? 'active' : '' }}" title="Gérer les Clients" href="{{ path('back') }}">
+        <i class="bi bi-people me-2" aria-hidden="true"></i>
         <span class="item-text">Gérer les Clients</span>
     </a>
 </li>
