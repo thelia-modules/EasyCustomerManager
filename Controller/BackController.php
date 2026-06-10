@@ -27,7 +27,6 @@ use Thelia\Core\HttpFoundation\JsonResponse;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
-use Thelia\Core\Thelia;
 use Thelia\Core\Translation\Translator;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\CountryQuery;
@@ -47,10 +46,10 @@ use Thelia\Model\OrderQuery;
 use Thelia\Model\Product;
 use Thelia\Model\ProductImageQuery;
 use Thelia\Model\ProductQuery;
-use Thelia\TaxEngine\Calculator;
 use Thelia\Tools\MoneyFormat;
 use Thelia\Tools\URL;
 use Symfony\Component\Routing\Attribute\Route;
+use Twig\Environment;
 
 /**
  * class BackController
@@ -61,7 +60,7 @@ class BackController extends ProductController
      * @Route("/list", name="list")
      */
     #[Route('/admin/easy-customer-manager', name: 'back')]
-    public function listAction(Request $request, EventDispatcherInterface $eventDispatcher)
+    public function listAction(Request $request, EventDispatcherInterface $eventDispatcher, Environment $twig)
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::UPDATE)) {
             return $response;
@@ -185,13 +184,27 @@ class BackController extends ProductController
         $templateFieldEvent = new TemplateFieldEvent();
         $eventDispatcher->dispatch($templateFieldEvent, TemplateFieldEvent::CUSTOMER_MANAGER_TEMPLATE_FIELD);
 
-        return $this->render('EasyCustomerManager/list', [
-            'columnsDefinition' => $this->defineColumnsDefinition(),
-            'theliaVersion' => ConfigQuery::read('thelia_version'),
-            'moduleVersion' => EasyCustomerManager::MODULE_VERSION,
-            'moduleName' => EasyCustomerManager::MODULE_NAME,
-            'template_fields' => $templateFieldEvent->getTemplateFields()
-        ]);
+        $locale = $request->getSession()->getLang()->getLocale();
+
+        $countries = [];
+        foreach (CountryQuery::create()->filterByVisible(1)->find() as $country) {
+            $country->setLocale($locale);
+            $countries[] = [
+                'id' => $country->getId(),
+                'title' => $country->getTitle(),
+            ];
+        }
+
+        return new \Symfony\Component\HttpFoundation\Response(
+            $twig->render('@EasyCustomerManagerModule/backOffice/default-twig/EasyCustomerManager/list.html.twig', [
+                'columnsDefinition' => $this->defineColumnsDefinition(),
+                'theliaVersion' => ConfigQuery::read('thelia_version'),
+                'moduleVersion' => EasyCustomerManager::MODULE_VERSION,
+                'moduleName' => EasyCustomerManager::MODULE_NAME,
+                'template_fields' => $templateFieldEvent->getTemplateFields(),
+                'countries' => $countries,
+            ])
+        );
     }
 
 
@@ -202,7 +215,7 @@ class BackController extends ProductController
     protected function getOrderColumnName(Request $request)
     {
         $columnDefinition = $this->defineColumnsDefinition(true)[
-        (int) $request->get('order')[0]['column']
+        (int) $request->request->get('order')[0]['column']
         ];
 
         return $columnDefinition['orm'];
@@ -222,7 +235,7 @@ class BackController extends ProductController
      */
     protected function getOrderDir(Request $request)
     {
-        return (string) $request->get('order')[0]['dir'] === 'asc' ? Criteria::ASC : Criteria::DESC;
+        return (string) $request->request->get('order')[0]['dir'] === 'asc' ? Criteria::ASC : Criteria::DESC;
     }
 
     /**
@@ -231,7 +244,7 @@ class BackController extends ProductController
      */
     protected function getLength(Request $request)
     {
-        return (int) $request->get('length');
+        return (int) $request->request->get('length');
     }
 
     /**
@@ -240,7 +253,7 @@ class BackController extends ProductController
      */
     protected function getOffset(Request $request)
     {
-        return (int) $request->get('start');
+        return (int) $request->request->get('start');
     }
 
 
@@ -250,7 +263,7 @@ class BackController extends ProductController
      */
     protected function getDraw(Request $request)
     {
-        return (int) $request->get('draw');
+        return (int) $request->request->get('draw');
     }
 
     /**
@@ -336,7 +349,7 @@ class BackController extends ProductController
 
     protected function filterByCountry(Request $request, CustomerQuery $query)
     {
-        if (0 !== $countryId = (int) $request->get('filter')['country']) {
+        if (0 !== $countryId = (int) $request->request->get('filter')['country']) {
             $query->useAddressQuery()
                 ->filterByCountryId($countryId)
                 ->endUse();
@@ -347,10 +360,10 @@ class BackController extends ProductController
 
     protected function filterByCreatedAt(Request $request, CustomerQuery $query)
     {
-        if ('' !== $createdAtFrom = $request->get('filter')['createdAtFrom']) {
+        if ('' !== $createdAtFrom = $request->request->get('filter')['createdAtFrom']) {
             $query->filterByCreatedAt(sprintf("%s 00:00:00", $createdAtFrom), Criteria::GREATER_EQUAL);
         }
-        if ('' !== $createdAtTo = $request->get('filter')['createdAtTo']) {
+        if ('' !== $createdAtTo = $request->request->get('filter')['createdAtTo']) {
             $query->filterByCreatedAt(sprintf("%s 23:59:59", $createdAtTo), Criteria::LESS_EQUAL);
         }
     }
@@ -370,7 +383,7 @@ class BackController extends ProductController
 
     protected function getSearchValue(Request $request, $searchKey)
     {
-        return (string) $request->get($searchKey)['value'];
+        return (string) $request->request->get($searchKey)['value'];
     }
 
     /**

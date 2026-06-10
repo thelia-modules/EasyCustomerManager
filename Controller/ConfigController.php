@@ -2,36 +2,39 @@
 
 namespace EasyCustomerManager\Controller;
 
-
-use EasyCustomerManager\Form\Configuration;
 use EasyCustomerManager\EasyCustomerManager;
-use Symfony\Component\HttpFoundation\Request;
-use Thelia\Controller\Admin\BaseAdminController;
-use Thelia\Model\ConfigQuery;
-use TheliaSmarty\Template\Plugins\Form;
+use EasyCustomerManager\Form\Configuration;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Thelia\Controller\Admin\BaseAdminController;
+use Thelia\Core\Security\AccessManager;
+use Thelia\Core\Security\Resource\AdminResources;
 
 /**
  * class ConfigController
  */
 class ConfigController extends BaseAdminController
 {
-    /**
-     * @Route("", name="set") 
-     */
-    #[Route('/admin/module/EasyCustomerManager', name: 'easy_customer_manager')]
-    public function setAction()
+    #[Route('/admin/module/EasyCustomerManager/save', name: 'easy_customer_manager.config.save', methods: ['POST'])]
+    public function setAction(): RedirectResponse
     {
-        $form = $this->createForm(Configuration::getName());
-        $response = null;
-        if ($form->getForm()->isSubmitted()){
-            $configForm = $this->validateForm($form);
-            EasyCustomerManager::setConfigValue('order_types',$configForm->get('order')->getData(),true, true);
+        if (null !== $response = $this->checkAuth(AdminResources::MODULE, [], AccessManager::UPDATE)) {
+            return $response;
         }
-        $response = $this->render(
-            'module-configure',
+
+        $form = $this->createForm(Configuration::getName());
+
+        try {
+            $configForm = $this->validateForm($form);
+            EasyCustomerManager::setConfigValue('order_types', $configForm->get('order')->getData(), true, true);
+        } catch (\Exception $exception) {
+            $this->setupFormErrorContext('Configuration', $exception->getMessage(), $form, $exception);
+        }
+
+        return $this->generateRedirectFromRoute(
+            'admin.module.configure',
+            [],
             ['module_code' => 'EasyCustomerManager']
         );
-        return $response;
     }
 }
