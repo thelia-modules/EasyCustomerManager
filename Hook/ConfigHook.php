@@ -21,6 +21,15 @@ class ConfigHook extends BaseHook
         parent::__construct($dispatcher, $parserResolver);
     }
 
+    public static function getSubscribedHooks(): array
+    {
+        return [
+            'module.configuration' => [
+                ['type' => 'back', 'method' => 'onModuleConfiguration'],
+            ],
+        ];
+    }
+
     public function onModuleConfiguration(HookRenderEvent $event): void
     {
         $form = $this->formFactory->createForm(Configuration::getName());
