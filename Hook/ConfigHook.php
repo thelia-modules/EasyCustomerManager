@@ -8,6 +8,7 @@ use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Form\TheliaFormFactory;
 use Thelia\Core\Hook\BaseHook;
 use Thelia\Core\Template\Parser\ParserResolver;
+use Thelia\Model\LangQuery;
 use Thelia\Model\OrderQuery;
 use Thelia\Model\OrderStatusQuery;
 
@@ -48,7 +49,9 @@ class ConfigHook extends BaseHook
     private function getOrderStatuses(): array
     {
         $request = $this->getRequest();
-        $locale = $request?->getSession()?->getLang()?->getLocale() ?? 'en_US';
+        $locale = (null !== $request && $request->hasSession())
+            ? $request->getSession()->getLang()->getLocale()
+            : (LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
 
         $statuses = OrderStatusQuery::create()
             ->orderByPosition()

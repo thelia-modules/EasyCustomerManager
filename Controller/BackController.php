@@ -70,7 +70,9 @@ class BackController extends ProductController
 
         if ($request->isXmlHttpRequest()) {
 
-            $locale = $request->getSession()->getLang()->getLocale();
+            $locale = $request->hasSession()
+                ? $request->getSession()->getLang()->getLocale()
+                : (LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
 
             $query = CustomerQuery::create();
             $query->useOrderQuery('order', Criteria::LEFT_JOIN)
@@ -186,7 +188,9 @@ class BackController extends ProductController
         $templateFieldEvent = new TemplateFieldEvent();
         $eventDispatcher->dispatch($templateFieldEvent, TemplateFieldEvent::CUSTOMER_MANAGER_TEMPLATE_FIELD);
 
-        $locale = $request->getSession()->getLang()->getLocale();
+        $locale = $request->hasSession()
+            ? $request->getSession()->getLang()->getLocale()
+            : (LangQuery::create()->findOneByByDefault(true)?->getLocale() ?? 'en_US');
 
         $countries = [];
         foreach (CountryQuery::create()->filterByVisible(1)->find() as $country) {
