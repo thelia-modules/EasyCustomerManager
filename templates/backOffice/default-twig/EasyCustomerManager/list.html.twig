@@ -334,7 +334,7 @@
 
                 if (selectedIds.length > 0) {
                     $.ajax({
-                        url: "{{ path('delete_selected') }}",
+                        url: "{{ path('delete_selected') }}?_token={{ assignToken() }}",
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ customer_ids: selectedIds }),

@@ -47,7 +47,9 @@ use Thelia\Model\Product;
 use Thelia\Model\ProductImageQuery;
 use Thelia\Model\ProductQuery;
 use Thelia\Tools\MoneyFormat;
+use Thelia\Tools\TokenProvider;
 use Thelia\Tools\URL;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
@@ -390,11 +392,16 @@ class BackController extends ProductController
      * @throws \JsonException
      */
     #[Route('/delete-selected', name: 'delete_selected', methods: ['POST'])]
-    public function deleteSelectedAction(Request $request)
+    public function deleteSelectedAction(Request $request, TokenProvider $tokenProvider): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::DELETE)) {
             return $response;
         }
+
+        // Check CSRF token
+        $tokenProvider->checkToken(
+            (string) $request->query->get('_token')
+        );
 
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $customerIds = $data['customer_ids'];
