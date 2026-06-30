@@ -395,7 +395,7 @@ class BackController extends ProductController
     /**
      * @throws \JsonException
      */
-    #[Route('/delete-selected', name: 'delete_selected', methods: ['POST'])]
+    #[Route('/admin/easy-customer-manager/delete-selected', name: 'delete_selected', methods: ['POST'])]
     public function deleteSelectedAction(Request $request, TokenProvider $tokenProvider): Response
     {
         if (null !== $response = $this->checkAuth(AdminResources::CUSTOMER, [], AccessManager::DELETE)) {
