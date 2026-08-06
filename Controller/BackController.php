@@ -20,7 +20,7 @@ use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\Join;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Thelia\Controller\Admin\ProductController;
+use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Event\Image\ImageEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\JsonResponse;
@@ -56,11 +56,8 @@ use Twig\Environment;
 /**
  * class BackController
  */
-class BackController extends ProductController
+class BackController extends BaseAdminController
 {
-    /**
-     * @Route("/list", name="list")
-     */
     #[Route('/admin/easy-customer-manager', name: 'back')]
     public function listAction(Request $request, EventDispatcherInterface $eventDispatcher, Environment $twig)
     {
