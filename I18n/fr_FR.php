@@ -1,4 +1,40 @@
 <?php
-return array(
-    // 'an english string' => 'La traduction française de la chaine',
-);
+
+declare(strict_types=1);
+
+return [
+    '%count% customer(s) deleted' => '%count% client(s) supprimé(s)',
+    '%count% customer(s) not deleted because they have orders' => '%count% client(s) non supprimé(s) car ils ont des commandes',
+    'Country' => 'Pays',
+    'Customer manager' => 'Gestion des clients',
+    'Customer revenue' => 'Chiffre d\'affaires du client',
+    'Delete the selected customers' => 'Supprimer les clients sélectionnés',
+    'Do you really want to delete the selected customers? A customer who has orders is kept.' => 'Voulez-vous vraiment supprimer les clients sélectionnés ? Un client qui a des commandes est conservé.',
+    'Email' => 'E-mail',
+    'Enter order status ids separated by commas, for example 2,4' => 'Saisissez des identifiants de statut séparés par des virgules, par exemple 2,4',
+    'Enter the ids of the order statuses counted as paid in the revenue of each customer (for example 2,4).' => 'Saisissez les identifiants des statuts de commande comptés comme payés dans le chiffre d\'affaires de chaque client (par exemple 2,4).',
+    'First name' => 'Prénom',
+    'Ids of the order statuses counted as paid' => 'Identifiants des statuts de commande comptés comme payés',
+    'Last name' => 'Nom',
+    'Last order amount' => 'Montant de la dernière commande',
+    'Last order date' => 'Date de la dernière commande',
+    'Name, first name, email, reference or id' => 'Nom, prénom, e-mail, référence ou identifiant',
+    'No country selected' => 'Aucun pays sélectionné',
+    'No customer matches the current filters' => 'Aucun client ne correspond aux filtres',
+    'Order statuses' => 'Statuts de commande',
+    'Order statuses counted as paid' => 'Statuts de commande comptés comme payés',
+    'Orders' => 'Commandes',
+    'Per page' => 'Par page',
+    'Reference' => 'Référence',
+    'Registered from' => 'Inscrit à partir du',
+    'Registered until' => 'Inscrit jusqu\'au',
+    'Registration date' => 'Date d\'enregistrement',
+    'Search customer' => 'Rechercher un client',
+    'Select all' => 'Tout sélectionner',
+    'Select between 1 and %max% customers' => 'Sélectionnez entre 1 et %max% clients',
+    'The configuration has been saved' => 'La configuration a été enregistrée',
+    'Your session has expired, please reload the page and try again' => 'Votre session a expiré, rechargez la page et recommencez',
+    '%count% customer(s) could not be deleted, see the logs' => '%count% client(s) n\'ont pas pu être supprimé(s), voir les journaux',
+    'No order status is counted as paid yet: the customer revenue shows 0 until the statuses are chosen in the module configuration.' => 'Aucun statut de commande n\'est compté comme payé : le chiffre d\'affaires des clients reste à 0 tant que les statuts ne sont pas choisis dans la configuration du module.',
+    'Configure' => 'Configurer',
+];

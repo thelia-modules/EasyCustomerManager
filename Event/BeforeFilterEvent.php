@@ -1,46 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace EasyCustomerManager\Event;
 
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Core\Event\ActionEvent;
 use Thelia\Model\CustomerQuery;
 
-class BeforeFilterEvent extends ActionEvent
+/**
+ * Dispatched once the module has applied its own filters, before the count and the pagination:
+ * a listener narrows the customer query with the fields it added through TemplateFieldEvent.
+ */
+final class BeforeFilterEvent extends ActionEvent
 {
     public const CUSTOMER_MANAGER_BEFORE_FILTER = 'customer.manager.before.filter';
 
-    /** @var Request */
-    protected $request;
-    /** @var CustomerQuery */
-    protected $query;
-
-    protected $templateFields = [];
-
-    public function __construct(Request $request, CustomerQuery $query)
-    {
-        $this->request = $request;
-        $this->query = $query;
+    public function __construct(
+        private readonly Request $request,
+        private readonly CustomerQuery $query,
+    ) {
     }
 
-    public function addTemplateField($name, $template)
-    {
-        $this->templateFields[$name] = $template;
-    }
-
-    public function removeTemplateField($name)
-    {
-        if (isset($this->templateFields[$name])) {
-            unset($this->templateFields[$name]);
-        }
-    }
-
-    public function getRequest()
+    public function getRequest(): Request
     {
         return $this->request;
     }
 
-    public function getQuery()
+    public function getQuery(): CustomerQuery
     {
         return $this->query;
     }

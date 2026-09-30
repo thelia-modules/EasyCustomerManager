@@ -1,0 +1,193 @@
+{% extends '@BackOfficeDefaultTwig/base.html.twig' %}
+
+{% set domain = 'easycustomermanager' %}
+
+{% block title %}{{ 'Customer manager'|trans({}, domain) }}{% endblock %}
+{% block body_testid %}easy-customer-manager{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb" class="mb-1">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ path('admin.home') }}">{{ 'Home'|trans }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'Customer manager'|trans({}, domain) }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    {% set filters = page.filters %}
+    <div class="container-fluid" data-testid="ecm-page">
+        {% if not paid_statuses_configured %}
+            <div class="alert alert-warning" role="alert" data-testid="ecm-paid-statuses-warning">
+                {{ 'No order status is counted as paid yet: the customer revenue shows 0 until the statuses are chosen in the module configuration.'|trans({}, domain) }}
+                {% if is_granted('UPDATE', {resource: 'admin.module', module: 'EasyCustomerManager'}) %}
+                    <a href="{{ path('admin.module.configure', {module_code: 'EasyCustomerManager'}) }}" class="alert-link">{{ 'Configure'|trans({}, domain) }}</a>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% embed '@BackOfficeDefaultTwig/_page_header.html.twig' with { title: 'Customer manager'|trans({}, domain), total: page.total } %}
+            {% block title %}
+                {{ title }} <span class="badge bg-secondary" data-testid="ecm-count">{{ total }}</span>
+            {% endblock %}
+        {% endembed %}
+
+        <form method="get" action="{{ path('easy_customer_manager.list') }}" class="card card-body mb-3" data-testid="ecm-filters">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label" for="ecm-search">{{ 'Search customer'|trans({}, domain) }}</label>
+                    <input type="search" class="form-control" id="ecm-search" name="search" value="{{ filters.search }}"
+                           placeholder="{{ 'Name, first name, email, reference or id'|trans({}, domain) }}"
+                           minlength="{{ min_search_length }}" data-testid="ecm-search">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="ecm-country">{{ 'Country'|trans({}, domain) }}</label>
+                    <select class="form-select" id="ecm-country" name="country" data-testid="ecm-country">
+                        <option value="">{{ 'No country selected'|trans({}, domain) }}</option>
+                        {% for country in countries %}
+                            <option value="{{ country.id }}"{{ country.id == filters.countryId ? ' selected' : '' }}>{{ country.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="ecm-from">{{ 'Registered from'|trans({}, domain) }}</label>
+                    <input type="date" class="form-control" id="ecm-from" name="from" value="{{ filters.registeredFrom }}" data-testid="ecm-from">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="ecm-to">{{ 'Registered until'|trans({}, domain) }}</label>
+                    <input type="date" class="form-control" id="ecm-to" name="to" value="{{ filters.registeredTo }}" data-testid="ecm-to">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label" for="ecm-length">{{ 'Per page'|trans({}, domain) }}</label>
+                    <select class="form-select" id="ecm-length" name="length">
+                        {% for size in page_sizes %}
+                            <option value="{{ size }}"{{ size == filters.pageSize ? ' selected' : '' }}>{{ size }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1" data-testid="ecm-apply">
+                        <i class="bi bi-funnel me-1" aria-hidden="true"></i>{{ 'Apply'|trans }}
+                    </button>
+                    <a href="{{ path('easy_customer_manager.list') }}" class="btn btn-outline-secondary">{{ 'Reset'|trans }}</a>
+                </div>
+            </div>
+            <input type="hidden" name="order" value="{{ filters.sort.value }}">
+            <input type="hidden" name="direction" value="{{ filters.descending ? 'desc' : 'asc' }}">
+
+            {% if template_fields %}
+                <div class="row g-2 mt-1">
+                    {% for template in template_fields %}
+                        {% include template ignore missing %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+
+        <form id="ecm-bulk" method="post" action="{{ path('easy_customer_manager.delete_selected') }}" data-testid="ecm-bulk-form">
+            <input type="hidden" name="_token" value="{{ assignToken() }}">
+            {% for name, value in query_parameters %}
+                <input type="hidden" name="return[{{ name }}]" value="{{ value }}">
+            {% endfor %}
+            <input type="hidden" name="return[page]" value="{{ filters.page }}">
+
+            {% if is_granted('DELETE', 'admin.customer') %}
+                <button type="button" class="btn btn-danger btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#ecm-delete-selected-modal" data-testid="ecm-delete-selected">
+                    <i class="bi bi-trash me-1" aria-hidden="true"></i>{{ 'Delete the selected customers'|trans({}, domain) }}
+                </button>
+            {% endif %}
+
+            {% set direction = filters.descending ? 'desc' : 'asc' %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle" data-testid="ecm-table">
+                    <thead>
+                        <tr>
+                            <th scope="col"><input type="checkbox" class="form-check-input" id="ecm-select-all" aria-label="{{ 'Select all'|trans({}, domain) }}"></th>
+                            <th scope="col">{% include '@BackOfficeDefaultTwig/_sort_header.html.twig' with { label: 'Reference'|trans({}, domain), field: 'ref', current: filters.sort.value, direction: direction, extra_params: query_parameters } only %}</th>
+                            <th scope="col">{% include '@BackOfficeDefaultTwig/_sort_header.html.twig' with { label: 'Last name'|trans({}, domain), field: 'lastname', current: filters.sort.value, direction: direction, extra_params: query_parameters } only %}</th>
+                            <th scope="col">{% include '@BackOfficeDefaultTwig/_sort_header.html.twig' with { label: 'First name'|trans({}, domain), field: 'firstname', current: filters.sort.value, direction: direction, extra_params: query_parameters } only %}</th>
+                            <th scope="col">{% include '@BackOfficeDefaultTwig/_sort_header.html.twig' with { label: 'Email'|trans({}, domain), field: 'email', current: filters.sort.value, direction: direction, extra_params: query_parameters } only %}</th>
+                            <th scope="col" class="text-center">{% include '@BackOfficeDefaultTwig/_sort_header.html.twig' with { label: 'Registration date'|trans({}, domain), field: 'created_at', current: filters.sort.value, direction: direction, extra_params: query_parameters } only %}</th>
+                            <th scope="col" class="text-center">{% include '@BackOfficeDefaultTwig/_sort_header.html.twig' with { label: 'Last order date'|trans({}, domain), field: 'last_order', current: filters.sort.value, direction: direction, extra_params: query_parameters } only %}</th>
+                            <th scope="col" class="text-center">{{ 'Last order amount'|trans({}, domain) }}</th>
+                            <th scope="col" class="text-center">{{ 'Customer revenue'|trans({}, domain) }}</th>
+                            <th scope="col" class="text-end">{{ 'Actions'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in page.rows %}
+                            {% set customer_url = path('admin.customer.update.view', {customer_id: row.id}) %}
+                            <tr data-testid="ecm-row-{{ row.id }}">
+                                <td><input type="checkbox" class="form-check-input ecm-select" name="customer_ids[]" value="{{ row.id }}" aria-label="{{ row.reference }}"></td>
+                                <td><a href="{{ customer_url }}">{{ row.reference }}</a></td>
+                                <td><a href="{{ customer_url }}">{{ row.lastname }}</a></td>
+                                <td><a href="{{ customer_url }}">{{ row.firstname }}</a></td>
+                                <td><a href="mailto:{{ row.email }}">{{ row.email }}</a></td>
+                                <td class="text-center">{{ row.registeredAt }}</td>
+                                <td class="text-center">{{ row.lastOrderAt }}</td>
+                                <td class="text-center">{{ row.lastOrderAmount }}</td>
+                                <td class="text-center">{{ row.revenue }}</td>
+                                <td class="text-end">
+                                    {% if is_granted('UPDATE', 'admin.customer') %}
+                                        <a href="{{ customer_url }}" class="btn btn-info btn-sm" title="{{ 'Edit this customer'|trans }}">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if is_granted('DELETE', 'admin.customer') %}
+                                        <button type="button" class="btn btn-danger btn-sm" title="{{ 'Delete this customer'|trans }}"
+                                                data-bs-toggle="modal" data-bs-target="#customer-delete-modal" data-customer-id="{{ row.id }}">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">{{ 'No customer matches the current filters'|trans({}, domain) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        {{ component('BoPagination', {
+            route: 'easy_customer_manager.list',
+            currentPage: filters.page,
+            lastPage: page.pageCount,
+            routeParams: query_parameters,
+            ariaLabel: 'Customers pagination',
+            testid: 'ecm-pagination',
+        }) }}
+    </div>
+
+    {% if is_granted('DELETE', 'admin.customer') %}
+        <div class="modal fade" id="ecm-delete-selected-modal" tabindex="-1" aria-labelledby="ecm-delete-selected-title" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="ecm-delete-selected-title">{{ 'Delete the selected customers'|trans({}, domain) }}</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0">{{ 'Do you really want to delete the selected customers? A customer who has orders is kept.'|trans({}, domain) }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                        <button type="submit" form="ecm-bulk" class="btn btn-danger" data-testid="ecm-delete-selected-confirm">
+                            <i class="bi bi-trash" aria-hidden="true"></i> {{ 'Delete'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include '@BackOfficeDefaultTwig/customer/_customer_delete_modal.html.twig' %}
+    {% endif %}
+{% endblock %}
+
+{% block scripts_extra %}
+    <script>
+        document.getElementById('ecm-select-all')?.addEventListener('change', (event) => {
+            document.querySelectorAll('.ecm-select').forEach((box) => { box.checked = event.target.checked; });
+        });
+    </script>
+{% endblock %}

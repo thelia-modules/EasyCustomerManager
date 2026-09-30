@@ -1,51 +1,39 @@
 <?php
-/*************************************************************************************/
-/*      This file is part of the Thelia package.                                     */
-/*                                                                                   */
-/*      Copyright (c) OpenStudio                                                     */
-/*      email : dev@thelia.net                                                       */
-/*      web : http://www.thelia.net                                                  */
-/*                                                                                   */
-/*      For the full copyright and license information, please view the LICENSE.txt  */
-/*      file that was distributed with this source code.                             */
-/*************************************************************************************/
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace EasyCustomerManager;
 
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Template\TemplateDefinition;
-use Thelia\Module\BaseModule;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
+use Thelia\Module\BaseModule;
 
 class EasyCustomerManager extends BaseModule
 {
-    /** @var string */
-    const DOMAIN_NAME = 'easycustomermanager';
-    const MODULE_VERSION = '1.0.0';
-    const MODULE_NAME = 'EasyCustomerManager';
+    public const DOMAIN_NAME = 'easycustomermanager';
 
-
-    public function getHooks()
-    {
-        return [
-            [
-                "type" => TemplateDefinition::FRONT_OFFICE,
-                "code" => "easycustomermanager.js",
-                "title" => [
-                    "en_US" => "Easy Customer Manager js",
-                    "fr_FR" => "Js pour Easy Customer Manager",
-                ],
-                "active" => true,
-                "module" => true,
-            ]
-        ];
-    }
+    /** Module configuration key holding the comma separated ids of the order statuses that count as paid. */
+    public const PAID_STATUSES_CONFIG_KEY = 'order_types';
 
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
-            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
-            ->autowire(true)
-            ->autoconfigure(true);
+            ->exclude([
+                __DIR__.'/Event/*',
+                __DIR__.'/I18n/*',
+                __DIR__.'/Tests/*',
+                __DIR__.'/templates/*',
+            ])
+            ->autowire()
+            ->autoconfigure();
     }
 }
