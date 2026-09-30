@@ -4,9 +4,19 @@
   "license": "LGPL-3.0-or-later",
   "type": "thelia-module",
   "require": {
-    "thelia/installer": "~1.1"
+    "php": ">=8.3",
+    "thelia/installer": "^1.6"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest",
+    "phpunit/phpunit": "^11.5"
   },
   "extra": {
     "installer-name": "EasyCustomerManager"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "EasyCustomerManager\\Tests\\": "Tests/"
+    }
   }
 }

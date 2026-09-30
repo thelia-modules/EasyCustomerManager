@@ -1,8 +1,8 @@
-{# Back hook fragment — main.in-top-menu-items #}
-{% set is_active = admin_current_location is defined and admin_current_location starts with 'back' %}
+{% if is_granted('VIEW', 'admin.customer') %}
 <li class="nav-item" id="module_menu_easy_customer_manager">
-    <a class="nav-link {{ is_active ? 'active' : '' }}" title="Gérer les Clients" href="{{ path('back') }}">
+    <a class="nav-link {{ is_active ? 'active' : '' }}" title="{{ 'Customer manager'|trans({}, 'easycustomermanager') }}" href="{{ path('easy_customer_manager.list') }}">
         <i class="bi bi-people me-2" aria-hidden="true"></i>
-        <span class="item-text">Gérer les Clients</span>
+        <span class="item-text">{{ 'Customer manager'|trans({}, 'easycustomermanager') }}</span>
     </a>
 </li>
+{% endif %}

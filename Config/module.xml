@@ -5,22 +5,22 @@
     <fullnamespace>EasyCustomerManager\EasyCustomerManager</fullnamespace>
     <descriptive locale="en_US">
         <title>Easy Customer Manager</title>
-        <!--
-        <subtitle></subtitle>
-        <description></description>
-        <postscriptum></postscriptum>
-        -->
+        <subtitle>Filter, sort and clean up the customers from a single list</subtitle>
     </descriptive>
     <descriptive locale="fr_FR">
         <title>Easy Customer Manager</title>
+        <subtitle>Filtrer, trier et nettoyer les clients depuis une seule liste</subtitle>
     </descriptive>
-    <!-- <logo></logo> -->
-    <!--<images-folder>images</images-folder>-->
+    <descriptive locale="de_DE">
+        <title>Easy Customer Manager</title>
+        <subtitle>Kunden in einer einzigen Liste filtern, sortieren und bereinigen</subtitle>
+    </descriptive>
     <languages>
         <language>en_US</language>
         <language>fr_FR</language>
+        <language>de_DE</language>
     </languages>
-    <version>2.0.1</version>
+    <version>3.0.0</version>
     <authors>
         <author>
             <name>Jules Cournut</name>
@@ -36,15 +36,7 @@
         </author>
     </authors>
     <type>classic</type>
-    <!--
-    module dependencies
-    <required>
-        <module version="&gt;=0.1">Front</module>
-        <module version="~1.0">HookCart</module>
-        <module version="&gt;0.2">HookSearch</module>
-    </required>
-    -->
-    <thelia>2.5.0</thelia>
+    <thelia>3.2.0</thelia>
     <stability>other</stability>
     <mandatory>0</mandatory>
     <hidden>0</hidden>

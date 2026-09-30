@@ -1,4 +1,40 @@
 <?php
-return array(
-    // 'an english string' => 'The displayed english string',
-);
+
+declare(strict_types=1);
+
+return [
+    '%count% customer(s) deleted' => '%count% customer(s) deleted',
+    '%count% customer(s) not deleted because they have orders' => '%count% customer(s) not deleted because they have orders',
+    'Country' => 'Country',
+    'Customer manager' => 'Customer manager',
+    'Customer revenue' => 'Customer revenue',
+    'Delete the selected customers' => 'Delete the selected customers',
+    'Do you really want to delete the selected customers? A customer who has orders is kept.' => 'Do you really want to delete the selected customers? A customer who has orders is kept.',
+    'Email' => 'Email',
+    'Enter order status ids separated by commas, for example 2,4' => 'Enter order status ids separated by commas, for example 2,4',
+    'Enter the ids of the order statuses counted as paid in the revenue of each customer (for example 2,4).' => 'Enter the ids of the order statuses counted as paid in the revenue of each customer (for example 2,4).',
+    'First name' => 'First name',
+    'Ids of the order statuses counted as paid' => 'Ids of the order statuses counted as paid',
+    'Last name' => 'Last name',
+    'Last order amount' => 'Last order amount',
+    'Last order date' => 'Last order date',
+    'Name, first name, email, reference or id' => 'Name, first name, email, reference or id',
+    'No country selected' => 'No country selected',
+    'No customer matches the current filters' => 'No customer matches the current filters',
+    'Order statuses' => 'Order statuses',
+    'Order statuses counted as paid' => 'Order statuses counted as paid',
+    'Orders' => 'Orders',
+    'Per page' => 'Per page',
+    'Reference' => 'Reference',
+    'Registered from' => 'Registered from',
+    'Registered until' => 'Registered until',
+    'Registration date' => 'Registration date',
+    'Search customer' => 'Search customer',
+    'Select all' => 'Select all',
+    'Select between 1 and %max% customers' => 'Select between 1 and %max% customers',
+    'The configuration has been saved' => 'The configuration has been saved',
+    'Your session has expired, please reload the page and try again' => 'Your session has expired, please reload the page and try again',
+    '%count% customer(s) could not be deleted, see the logs' => '%count% customer(s) could not be deleted, see the logs',
+    'No order status is counted as paid yet: the customer revenue shows 0 until the statuses are chosen in the module configuration.' => 'No order status is counted as paid yet: the customer revenue shows 0 until the statuses are chosen in the module configuration.',
+    'Configure' => 'Configure',
+];
