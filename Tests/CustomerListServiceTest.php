@@ -136,6 +136,9 @@ final class CustomerListServiceTest extends EasyCustomerTestCase
             $this->customer('Many'.$index);
         }
 
+        // The module configuration is read once for the whole process: that read is not counted.
+        $this->service->page($this->filters(['search' => 'NoCustomerHasThisName']), $this->currentRequest());
+
         $queriesForTwo = $this->countQueries(fn () => $this->service->page($this->filters(['search' => 'Few']), $this->currentRequest()));
         $queriesForTwelve = $this->countQueries(fn () => $this->service->page($this->filters(['search' => 'Many']), $this->currentRequest()));
 
